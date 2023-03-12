@@ -24,6 +24,8 @@ This solution allows you to get most of this functionality for free in a databas
 
 OpenSigma uses Inngest, which has a free tier as well. While Inngest is used for background job processing, no data from your Stripe events is ever persisted besides IDs. Therefore Inngest will never have any info about what your Stripe events contain.
 
+Any information that does need to be passed to an Inngest function is proxied through the database with an anonymous ID.
+
 The only place *potentially* sensitive data is stored is in the DB. Logging only includes IDs.
 
 ## How to host

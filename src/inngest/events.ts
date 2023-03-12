@@ -1,34 +1,22 @@
 export type InngestEvents = {
-  "slack/thread.created": NewThreadEvent
-  "slack/thread.message": ThreadMessageEvent
-  "slack/channel.joined": ChannelJoinedEvent
+  "stripe/backfill": BackfillEvent
 }
 
-export interface NewThreadEvent {
-  name: "slack/thread.created"
+export interface BackfillEvent {
+  name: "stripe/backfill"
   data: {
-    namespace: string
-    channelID: string
-    threadTS: string
-    skipTimeout?: boolean
-  }
-}
-
-export interface ThreadMessageEvent {
-  name: "slack/thread.message"
-  data: {
-    namespace: string
-    channelID: string
-    threadTS: string
-    messageTS: String
-  }
-}
-
-export interface ChannelJoinedEvent {
-  name: "slack/channel.joined"
-  data: {
-    channelID: string
-    namespace: string
-    inviter?: string
+    object_types: string[]
+    /**
+     * Will only backfill events greater than or equal to this time. In milliseconds.
+     */
+    gte?: number
+    /**
+     * Page size when listing from Stripe. Default `100`.
+     */
+    page_size?: number
+    /**
+     * Best-effort rate limit for the number of calls to Stripe per second. Default `5`.
+     */
+    rate_limit?: number
   }
 }
