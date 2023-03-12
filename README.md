@@ -30,7 +30,9 @@ The only place *potentially* sensitive data is stored is in the DB. Logging only
 
 ## How to host
 
-The service is designed to be backed by Postgres/CRDB (with optional TimescaleDB support), and run with a Docker container. A simple and free solution is to use GPC Cloud Run + Supabase to get free container hosting and a free postgres DB with TimescaleDB support.
+The service is designed to be backed by Postgres/CRDB (with optional TimescaleDB support), and run with a Docker container. A simple and free solution is to use GCP Cloud Run + Supabase to get free container hosting and a free postgres DB with TimescaleDB support.
+
+You also need to use Inngest if you plan to run backfill. They have a free tier as well. Inngest is only used for backfill jobs, not for normal webhook ingestion.
 
 With Supabase you can also build some cool DB triggers to alert you when something happens. For example:
 
