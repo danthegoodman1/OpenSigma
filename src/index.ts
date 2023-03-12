@@ -28,6 +28,7 @@ declare global {
       DB_TABLE?: string
       INNGEST_EVENT_KEY: string
       INNGEST_SIGNING_KEY: string
+      ENABLE_INNGEST?: string
     }
   }
 }
@@ -45,7 +46,9 @@ async function main() {
     level: 'debug'
   })
 
-  app.use("/inngest", express.json(), serve(inngest, inngestFuncs))
+  if (process.env.ENABLE_INNGEST === "true") {
+    app.use("/inngest", express.json(), serve(inngest, inngestFuncs))
+  }
 
   // Connect DB
   try {
