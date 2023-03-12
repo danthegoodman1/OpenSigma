@@ -5,7 +5,9 @@ import express from 'express'
 import bunyan from 'bunyan'
 import { v4 as uuidv4 } from 'uuid'
 import cors from 'cors'
+import { serve } from "inngest/express"
 
+import { inngest, inngestFuncs } from "./inngest"
 import { logger } from './logger'
 import { ConnectDB } from './db'
 
@@ -20,7 +22,12 @@ declare global {
 
   namespace NodeJS {
     interface ProcessEnv {
-      API_TOKEN: string
+      DSN: string
+      PORT: string
+      DB_SCHEMA?: string
+      DB_TABLE?: string
+      INNGEST_EVENT_KEY: string
+      INNGEST_SIGNING_KEY: string
     }
   }
 }
@@ -37,6 +44,8 @@ async function main() {
     serializers: bunyan.stdSerializers,
     level: 'debug'
   })
+
+  app.use("/inngest", express.json(), serve(inngest, inngestFuncs))
 
   // Connect DB
   try {
@@ -63,12 +72,6 @@ async function main() {
   }
 
   app.get('/hc', (req, res) => {
-    // let log = GetRequestLogger(req)
-    // log.info("hey")
-    // log = UpdateRequestLogger(log, {
-    //   "test": "pro"
-    // })
-    // log.info("hey with pro")
     res.sendStatus(200)
   })
 
