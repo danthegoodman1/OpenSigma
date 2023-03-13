@@ -10,6 +10,7 @@ import { serve } from "inngest/express"
 import { inngest, inngestFuncs } from "./inngest"
 import { logger } from './logger'
 import { ConnectDB } from './db'
+import { ListObject } from './stripe'
 
 const listenPort = process.env.PORT || '8080'
 
@@ -29,6 +30,7 @@ declare global {
       INNGEST_EVENT_KEY: string
       INNGEST_SIGNING_KEY: string
       ENABLE_INNGEST?: string
+      STRIPE_KEY?: string
     }
   }
 }
@@ -76,6 +78,10 @@ async function main() {
 
   app.get('/hc', (req, res) => {
     res.sendStatus(200)
+  })
+
+  app.post('/list/:objectType', async (req, res) => {
+    return res.json(await ListObject(req.params.objectType as any))
   })
 
   const server = app.listen(listenPort, () => {

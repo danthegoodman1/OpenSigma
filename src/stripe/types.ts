@@ -63,4 +63,6 @@ export const types = [
   , "identity/verification_sessions"
   , "identity/verification_reports"
   , "webhook_endpoints" // https://i.kym-cdn.com/entries/icons/mobile/000/033/487/rick.jpg
-]
+] as const // ts magic, tells ts to infer the most narrow type
+
+export type StripeTypes = typeof types[number] // more ts magic to make this a union type
