@@ -14,7 +14,7 @@ Stores the history of events, and the lifecycle of each object as they change, i
 
 ## Motivation
 
-Stripe deletes most data from events after 30 days. This is not a lot of time, especially if you need to check something like a check session's metadata.
+Stripe deletes most data from events after 30 days. This is not a lot of time, especially if you need to check something like a checkout session's metadata.
 
 They also have a product, Sigma, to query your Stripe data, but that has a per-transaction cost along with an increasing base cost, minimum $10.
 
@@ -22,7 +22,7 @@ This solution allows you to get most of this functionality for free in a databas
 
 ## Security
 
-OpenSigma uses Inngest, which has a free tier as well. While Inngest is used for background job processing, no data from your Stripe events is ever persisted besides IDs. Therefore Inngest will never have any info about what your Stripe events contain.
+OpenSigma uses Inngest, which has a free tier as well. While Inngest is used for background job processing, no data from your Stripe events is ever persisted besides IDs. Therefore Inngest will never have any info about what your Stripe events contain. Inngest must be explicitly enabled with the env var `ENABLE_INNGEST=true`, along with the required keys.
 
 Any information that does need to be passed to an Inngest function is proxied through the database with an anonymous ID.
 
