@@ -16,7 +16,17 @@ Stores the history of events, and the lifecycle of each object as they change, i
 
 Stripe deletes most data from events after 30 days. This is not a lot of time, especially if you need to check something like a checkout session's metadata.
 
-They also have a product, Sigma, to query your Stripe data, but that has a per-transaction cost along with an increasing base cost, minimum $10.
+They go from looking like this:
+
+![normal](/assets/normal.png)
+
+To looking like this:
+
+![expired](/assets/expired.png)
+
+From 97 lines of data down to 3. Ouch.
+
+They also have a product, Sigma, to query your Stripe data, but that has a per-transaction cost along with an increasing base cost, minimum $10. You also need to enable this before they collect data, so any objects >30 days old are also lost.
 
 This solution allows you to get most of this functionality for free in a database you control.
 
