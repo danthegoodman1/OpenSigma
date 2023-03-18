@@ -10,7 +10,7 @@ import { serve } from "inngest/express"
 import { inngest, inngestFuncs } from "./inngest"
 import { logger } from './logger'
 import { ConnectDB } from './db'
-import { ListObject } from './stripe'
+import { ListObject, stripe } from './stripe'
 
 const listenPort = process.env.PORT || '8080'
 
@@ -31,6 +31,7 @@ declare global {
       INNGEST_SIGNING_KEY: string
       ENABLE_INNGEST?: string
       STRIPE_KEY?: string
+      STRIPE_WEBHOOK_SECRET?: string
     }
   }
 }
@@ -38,7 +39,6 @@ declare global {
 async function main() {
 
   const app = express()
-  app.use(express.json())
   app.disable('x-powered-by')
   app.use(cors())
 
@@ -80,7 +80,27 @@ async function main() {
     res.sendStatus(200)
   })
 
-  app.post('/list/:objectType', async (req, res) => {
+  app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
+    let event = request.body
+    if (stripe && process.env.STRIPE_WEBHOOK_SECRET) {
+      // Get the signature sent by Stripe
+      const signature = request.headers['stripe-signature'];
+      try {
+        event = stripe.webhooks.constructEvent(
+          request.body,
+          signature!,
+          process.env.STRIPE_WEBHOOK_SECRET
+        );
+      } catch (err) {
+        logger.warn({
+          err
+        }, "webhook signature verification failed")
+        return response.sendStatus(400);
+      }
+    }
+  })
+
+  app.post('/list/:objectType', express.json(), async (req, res) => {
     return res.json(await ListObject(req.params.objectType as any))
   })
 

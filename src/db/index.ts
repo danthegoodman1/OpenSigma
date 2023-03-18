@@ -1,4 +1,5 @@
 import { Pool } from 'pg'
+import Stripe from 'stripe'
 
 export let pool: Pool
 
@@ -9,9 +10,11 @@ export async function ConnectDB() {
   })
 }
 
+const tableName = `${process.env.DB_SCHEMA || "public"}.${process.env.DB_TABLE || "stripe_events"}`
+
 export async function CreateTableIfNotExists() {
   return pool.query(`
-    CREATE TABLE IF NOT EXISTS  ${process.env.DB_SCHEMA || "public"}.${process.env.DB_TABLE || "stripe_events"} (
+    CREATE TABLE IF NOT EXISTS  ${tableName} (
       type TEXT NOT NULL,
       id TEXT NOT NULL,
       version INT8 NOT NULL,
@@ -31,16 +34,25 @@ export async function CreateHypertable() {
 
 export interface InsertEventOpts {
   /**
-   * Default `false`. Will drop events if they already exist in the DB. Used for backfill.
+   * Default `true`. Will drop events if they already exist in the DB. Used for backfill.
    */
-  dropExistingEvents?: boolean
-  event: any
-  type: string
+  insertOnConflict?: boolean
 }
 
 /**
  * Inserts an event automatically incrementing the version number as needed
  */
-export async function InsertEvent(opts: InsertEventOpts) {
-
+export async function InsertEvent(event: Stripe.Event, opts?: InsertEventOpts) {
+  return pool.query(`
+    INSERT INTO ${tableName} (type, id, version, data)
+    VALUES ($1, $2, 1, $3)
+    ON CONFLICT (id) DO
+      ${opts?.insertOnConflict === false ? `NOTHING` :
+      `INSERT INTO ${tableName} (type, id, version, data)
+      VALUES ($1, $2, (
+        SELECT MAX(version)+1
+        FROM ${tableName}
+        WHERE id = $1
+      ), $)`}
+  `, [event.type, event.id, event])
 }

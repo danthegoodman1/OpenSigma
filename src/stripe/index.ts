@@ -1,7 +1,15 @@
 import fetch from "cross-fetch"
-import { logger } from "../logger";
+import Stripe from "stripe"
 
+import { logger } from "../logger";
 import { StripeTypes } from "./types";
+
+export let stripe: Stripe | undefined
+if (process.env.STRIPE_KEY) {
+  stripe = new Stripe(process.env.STRIPE_KEY, {
+    apiVersion: "2022-11-15"
+  })
+}
 
 export interface ListOptions {
   starting_after?: string
