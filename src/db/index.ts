@@ -1,5 +1,6 @@
 import { Pool } from 'pg'
 import Stripe from 'stripe'
+import { StripeTypes } from '../stripe/types'
 
 export let pool: Pool
 
@@ -42,7 +43,7 @@ export interface InsertEventOpts {
 /**
  * Inserts an event automatically incrementing the version number as needed
  */
-export async function InsertEvent(event: Stripe.Event, opts?: InsertEventOpts) {
+export async function InsertEvent(event: { data: { id: string, [key: string]: any }, type: StripeTypes }, opts?: InsertEventOpts) {
   return pool.query(`
     INSERT INTO ${tableName} (type, id, version, data)
     VALUES ($1, $2, 1, $3)
@@ -54,5 +55,33 @@ export async function InsertEvent(event: Stripe.Event, opts?: InsertEventOpts) {
         FROM ${tableName}
         WHERE id = $1
       ), $)`}
-  `, [event.type, event.id, event])
+  `, [event.type, event.data.id, event])
+}
+
+/**
+ * Inserts multiple events, automatically incrementing the version number as needed
+ */
+export async function InsertEvents(events: { data: { id: string, [key: string]: any }, type: StripeTypes }[], opts?: InsertEventOpts) {
+  const queryParts: string[] = [];
+  const queryParams: (string | { data: { id: string, [key: string]: any }, type: StripeTypes })[] = [];
+
+  events.forEach((event, index) => {
+    const offset = index * 4;
+    queryParts.push(`
+      INSERT INTO ${tableName} (type, id, version, data)
+      VALUES ($${offset + 1}, $${offset + 2}, 1, $${offset + 3})
+      ON CONFLICT (id) DO
+        ${opts?.insertOnConflict === false ? `NOTHING` :
+        `INSERT INTO ${tableName} (type, id, version, data)
+        VALUES ($${offset + 1}, $${offset + 2}, (
+          SELECT MAX(version)+1
+          FROM ${tableName}
+          WHERE id = $${offset + 2}
+        ), $${offset + 3})`}
+    `);
+    queryParams.push(event.type, event.data.id, event);
+  });
+
+  const query = queryParts.join('\n');
+  return pool.query(query, queryParams);
 }

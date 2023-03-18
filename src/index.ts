@@ -9,7 +9,7 @@ import { serve } from "inngest/express"
 
 import { inngest, inngestFuncs } from "./inngest"
 import { logger } from './logger'
-import { ConnectDB } from './db'
+import { ConnectDB, InsertEvents } from './db'
 import { ListObject, stripe } from './stripe'
 
 const listenPort = process.env.PORT || '8080'
@@ -80,22 +80,26 @@ async function main() {
     res.sendStatus(200)
   })
 
-  app.post('/webhook', express.raw({type: 'application/json'}), (request, response) => {
-    let event = request.body
+  app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+    let event = req.body
     if (stripe && process.env.STRIPE_WEBHOOK_SECRET) {
       // Get the signature sent by Stripe
-      const signature = request.headers['stripe-signature'];
+      const signature = req.headers['stripe-signature']
       try {
         event = stripe.webhooks.constructEvent(
-          request.body,
+          req.body,
           signature!,
           process.env.STRIPE_WEBHOOK_SECRET
-        );
+        )
+        await InsertEvents([{
+          data: event,
+          type: event.type
+        }])
       } catch (err) {
         logger.warn({
           err
         }, "webhook signature verification failed")
-        return response.sendStatus(400);
+        return res.sendStatus(400)
       }
     }
   })

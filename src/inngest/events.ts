@@ -1,3 +1,5 @@
+import { StripeTypes } from "../stripe/types"
+
 export type InngestEvents = {
   "stripe/backfill": BackfillEvent
 }
@@ -5,9 +7,9 @@ export type InngestEvents = {
 export interface BackfillEvent {
   name: "stripe/backfill"
   data: {
-    object_types: string[]
+    object_types: StripeTypes[]
     /**
-     * Will only backfill events greater than or equal to this time. In milliseconds.
+     * Will only backfill events greater than or equal to this time. In second since epoch.
      */
     gte?: number
     /**
