@@ -47,7 +47,7 @@ export async function InsertEvent(event: { data: { id: string, [key: string]: an
   return pool.query(`
     INSERT INTO ${tableName} (type, id, version, data)
     VALUES ($1, $2, 1, $3)
-    ON CONFLICT (id) DO
+    ON CONFLICT (id, version) DO
       ${opts?.insertOnConflict === false ? `NOTHING` :
       `INSERT INTO ${tableName} (type, id, version, data)
       VALUES ($1, $2, (
