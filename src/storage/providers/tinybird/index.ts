@@ -30,6 +30,7 @@ export class TinybirdProvider implements Storage {
         },
         body: events.map((event) => JSON.stringify({
           ...event,
+          id: event.data.id,
           data: JSON.stringify(event.data)
         })).join("\n"),
       }

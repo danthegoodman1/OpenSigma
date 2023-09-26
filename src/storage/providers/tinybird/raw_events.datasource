@@ -6,6 +6,7 @@ DESCRIPTION >
 
 SCHEMA >
     `time_sec` Int64 `json:$.timeSec`,
+    `id` String `json:$.id`,
     `event_type` String `json:$.type`,
     `data` String `json:$.data`
 
