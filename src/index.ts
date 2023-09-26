@@ -35,17 +35,13 @@ async function main() {
   app.disable("x-powered-by")
   app.use(cors())
 
-  const log = bunyan.createLogger({
-    name: "tsapitemplate",
-    serializers: bunyan.stdSerializers,
-    level: "debug",
-  })
-
   // Connect DB
   try {
     await SetupStorage()
   } catch (error: any) {
-    log.error({ m: "failed to connect to db", err: error })
+    logger.error({
+      error
+    }, "failed to setup storage")
     process.exit(1)
   }
 
@@ -58,9 +54,8 @@ async function main() {
   if (process.env.HTTP_LOG === "1") {
     logger.debug("using HTTP logger")
     app.use((req: any, res, next) => {
-      req.log = log.child({ req_id: req.id }, true)
-      req.log.info({ req })
-      res.on("finish", () => req.log.info({ res }))
+      logger.debug({ req }, "handling request")
+      res.on("finish", () => logger.debug({ req, res }, "request complete"))
       next()
     })
   }
