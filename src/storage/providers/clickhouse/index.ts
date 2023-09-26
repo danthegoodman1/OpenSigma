@@ -34,7 +34,6 @@ export class ClickHouseProvider implements Storage {
           ...event,
           id: event.data.id,
           data: JSON.stringify(event.data),
-          time_sec: event.timeSec
         }
       }),
       format: "JSONEachRow",

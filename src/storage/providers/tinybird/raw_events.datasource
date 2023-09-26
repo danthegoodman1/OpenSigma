@@ -5,11 +5,11 @@ DESCRIPTION >
     OpenSigma raw events
 
 SCHEMA >
-    `time_sec` Int64 `json:$.timeSec`,
+    `time_sec` Int64 `json:$.time_sec`,
     `id` String `json:$.id`,
-    `event_type` String `json:$.type`,
+    `object_type` String `json:$.object_type`,
     `data` String `json:$.data`
 
 ENGINE "MergeTree"
-ENGINE_PARTITION_KEY "event_type, toYYYYMM(toDateTime(time_sec))"
-ENGINE_SORTING_KEY "event_type, time_sec"
+ENGINE_PARTITION_KEY "object_type, toYYYYMM(toDateTime(time_sec))"
+ENGINE_SORTING_KEY "object_type, time_sec"

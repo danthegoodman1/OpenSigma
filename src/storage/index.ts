@@ -1,11 +1,14 @@
+import { logger } from "../logger"
 import { StripeTypes } from "../stripe/types"
-import { ClickHouseProvider } from "./providers/clickhouse";
-import { TinybirdProvider } from "./providers/tinybird";
+import { ClickHouseProvider } from "./providers/clickhouse"
+import { PostgresProvider } from "./providers/postgres"
+import { TinybirdProvider } from "./providers/tinybird"
 
 export interface Event {
-  data: { id: string; [key: string]: any }
-  type: StripeTypes
-  timeSec: Number
+  data: any
+  object_type: StripeTypes
+  time_sec: Number
+  event_type: string
 }
 
 export interface Storage {
@@ -23,11 +26,21 @@ export async function SetupStorage() {
     case "tinybird":
       strg = new TinybirdProvider()
       break
-  
+    case "postgres":
+      strg = new PostgresProvider()
+      break
+
     default:
-      throw new Error(`unknown storage provider '${process.env.STORAGE}', set the STORAGE env var to a supported storage engine (see src/storage/index.ts)`)
+      throw new Error(
+        `unknown storage provider '${process.env.STORAGE}', set the STORAGE env var to a supported storage engine (see src/storage/index.ts)`
+      )
   }
-  await strg.Init()
+  try {
+    await strg.Init()
+  } catch (error) {
+    logger.error("failed to init storage")
+    throw error
+  }
 }
 
 export class HighStatusCode extends Error {

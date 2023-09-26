@@ -16,8 +16,9 @@ export async function backfillObjectType(objectType: StripeTypes, gte?: string) 
       res.data.map((obj) => {
         return {
           data: obj,
-          type: objectType,
-          timeSec: obj.created || Math.floor(new Date().getTime() / 1000)
+          object_type: objectType,
+          time_sec: obj.created || Math.floor(new Date().getTime() / 1000),
+          event_type: "_backfill"
         }
       })
     )

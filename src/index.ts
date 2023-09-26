@@ -9,6 +9,7 @@ import { logger } from "./logger"
 import { ListObject, stripe } from "./stripe"
 import { SetupStorage, strg } from "./storage"
 import { backfillObjectType } from "./stripe/backfill"
+import { StripeTypes } from "./stripe/types"
 
 const listenPort = process.env.PORT || "8080"
 
@@ -73,16 +74,17 @@ async function main() {
         // Get the signature sent by Stripe
         const signature = req.headers["stripe-signature"]
         try {
-          event = stripe.webhooks.constructEvent(
+          const event = stripe.webhooks.constructEvent(
             req.body,
             signature!,
             process.env.STRIPE_WEBHOOK_SECRET
           )
           await strg.InsertEvents([
             {
-              data: event,
-              type: event.type,
-              timeSec: event.created || Math.floor(new Date().getTime() / 1000),
+              data: event.data.object,
+              object_type: event.object as StripeTypes,
+              time_sec: event.created || Math.floor(new Date().getTime() / 1000),
+              event_type: event.type
             },
           ])
         } catch (err) {

@@ -5,10 +5,10 @@ SQL >
     SELECT
       max(timeSec) timeSec
       , id
-      , event_type
+      , object_type
       , argMax(data, timeSec) data
     FROM raw_events
-    group by event_type, id
+    group by object_type, id
 
 TYPE MATERIALIZED
 DATASOURCE raw_events
