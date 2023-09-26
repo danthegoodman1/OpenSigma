@@ -2,7 +2,6 @@ import * as dotenv from "dotenv"
 dotenv.config()
 
 import express from "express"
-import bunyan from "bunyan"
 import { v4 as uuidv4 } from "uuid"
 import cors from "cors"
 
@@ -26,6 +25,7 @@ declare global {
       STRIPE_KEY?: string
       STRIPE_WEBHOOK_SECRET?: string
       KEY: string
+      STORAGE: string
     }
   }
 }
@@ -40,7 +40,7 @@ async function main() {
     await SetupStorage()
   } catch (error: any) {
     logger.error({
-      error
+      err: error
     }, "failed to setup storage")
     process.exit(1)
   }

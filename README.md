@@ -1,8 +1,8 @@
 # OpenSigma
 
-An open source version of Stripe's Sigma: Analytics and archival of Stripe events.
+An open source version of Stripe's Sigma: Analytics and archival of Stripe events. Backfills from existing events, and receives new updates through Stripe webhooks.
 
-backfills from existing events, and receives new updates through Stripe webhooks.
+Designed to be run with Bun.
 
 ## Features
 

@@ -9,6 +9,7 @@ export class ClickHouseProvider implements Storage {
       username: process.env.CH_USER || "default",
       password: process.env.CH_PASSWORD,
       host: process.env.CH_HOST,
+      database: process.env.CH_DATABASE || 'default'
     })
     if (!process.env.CH_TABLE) {
       throw new Error("missing CH_TABLE env var")
@@ -21,6 +22,8 @@ export class ClickHouseProvider implements Storage {
     if (!res.success) {
       throw new Error("failed to ping clickhouse")
     }
+
+    // TODO: Create tables
   }
 
   async InsertEvents(events: Event[]) {
