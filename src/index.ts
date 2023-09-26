@@ -1,16 +1,17 @@
-import * as dotenv from 'dotenv'
+import * as dotenv from "dotenv"
 dotenv.config()
 
-import express from 'express'
-import bunyan from 'bunyan'
-import { v4 as uuidv4 } from 'uuid'
-import cors from 'cors'
+import express from "express"
+import bunyan from "bunyan"
+import { v4 as uuidv4 } from "uuid"
+import cors from "cors"
 
-import { logger } from './logger'
-import { ListObject, stripe } from './stripe'
-import { SetupStorage, strg } from './storage'
+import { logger } from "./logger"
+import { ListObject, stripe } from "./stripe"
+import { SetupStorage, strg } from "./storage"
+import { backfillObjectType } from "./stripe/backfill"
 
-const listenPort = process.env.PORT || '8080'
+const listenPort = process.env.PORT || "8080"
 
 declare global {
   namespace Express {
@@ -21,29 +22,23 @@ declare global {
 
   namespace NodeJS {
     interface ProcessEnv {
-      DSN: string
       PORT: string
-      DB_SCHEMA?: string
-      DB_TABLE?: string
-      INNGEST_EVENT_KEY: string
-      INNGEST_SIGNING_KEY: string
-      ENABLE_INNGEST?: string
       STRIPE_KEY?: string
       STRIPE_WEBHOOK_SECRET?: string
+      KEY: string
     }
   }
 }
 
 async function main() {
-
   const app = express()
-  app.disable('x-powered-by')
+  app.disable("x-powered-by")
   app.use(cors())
 
   const log = bunyan.createLogger({
     name: "tsapitemplate",
     serializers: bunyan.stdSerializers,
-    level: 'debug'
+    level: "debug",
   })
 
   // Connect DB
@@ -70,37 +65,53 @@ async function main() {
     })
   }
 
-  app.get('/hc', (req, res) => {
+  app.get("/hc", (req, res) => {
     res.sendStatus(200)
   })
 
-  app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) => {
-    let event = req.body
-    if (stripe && process.env.STRIPE_WEBHOOK_SECRET) {
-      // Get the signature sent by Stripe
-      const signature = req.headers['stripe-signature']
-      try {
-        event = stripe.webhooks.constructEvent(
-          req.body,
-          signature!,
-          process.env.STRIPE_WEBHOOK_SECRET
-        )
-        await strg.InsertEvents([{
-          data: event,
-          type: event.type,
-          timeSec: event.created || Math.floor(new Date().getTime()/1000)
-        }])
-      } catch (err) {
-        logger.warn({
-          err
-        }, "webhook signature verification failed")
-        return res.sendStatus(400)
+  app.post(
+    "/webhook",
+    express.raw({ type: "application/json" }),
+    async (req, res) => {
+      let event = req.body
+      if (stripe && process.env.STRIPE_WEBHOOK_SECRET) {
+        // Get the signature sent by Stripe
+        const signature = req.headers["stripe-signature"]
+        try {
+          event = stripe.webhooks.constructEvent(
+            req.body,
+            signature!,
+            process.env.STRIPE_WEBHOOK_SECRET
+          )
+          await strg.InsertEvents([
+            {
+              data: event,
+              type: event.type,
+              timeSec: event.created || Math.floor(new Date().getTime() / 1000),
+            },
+          ])
+        } catch (err) {
+          logger.warn(
+            {
+              err,
+            },
+            "webhook signature verification failed"
+          )
+          return res.sendStatus(400)
+        }
       }
     }
+  )
+
+  app.post("/list/:objectType", express.json(), async (req, res) => {
+    return res.json(await ListObject(req.params.objectType as any))
   })
 
-  app.post('/list/:objectType', express.json(), async (req, res) => {
-    return res.json(await ListObject(req.params.objectType as any))
+  app.post("/backfill/:objectType", express.json(), async (req, res) => {
+    if (req.headers.authorization !== process.env.KEY) {
+      return res.status(403).send("invalid auth")
+    }
+    return res.json(await backfillObjectType(req.params.objectType as any))
   })
 
   const server = app.listen(listenPort, () => {
@@ -109,22 +120,22 @@ async function main() {
 
   let stopping = false
 
-  process.on('SIGTERM', async () => {
+  process.on("SIGTERM", async () => {
     if (!stopping) {
       stopping = true
-      logger.warn('Received SIGTERM command, shutting down...')
+      logger.warn("Received SIGTERM command, shutting down...")
       server.close()
-      logger.info('exiting...')
+      logger.info("exiting...")
       process.exit(0)
     }
   })
 
-  process.on('SIGINT', async () => {
+  process.on("SIGINT", async () => {
     if (!stopping) {
       stopping = true
-      logger.warn('Received SIGINT command, shutting down...')
+      logger.warn("Received SIGINT command, shutting down...")
       server.close()
-      logger.info('exiting...')
+      logger.info("exiting...")
       process.exit(0)
     }
   })
