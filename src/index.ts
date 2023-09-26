@@ -5,9 +5,7 @@ import express from 'express'
 import bunyan from 'bunyan'
 import { v4 as uuidv4 } from 'uuid'
 import cors from 'cors'
-import { serve } from "inngest/express"
 
-import { inngest, inngestFuncs } from "./inngest"
 import { logger } from './logger'
 import { ConnectDB, InsertEvents } from './db'
 import { ListObject, stripe } from './stripe'
@@ -47,10 +45,6 @@ async function main() {
     serializers: bunyan.stdSerializers,
     level: 'debug'
   })
-
-  if (process.env.ENABLE_INNGEST === "true") {
-    app.use("/inngest", express.json(), serve(inngest, inngestFuncs))
-  }
 
   // Connect DB
   try {
