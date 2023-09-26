@@ -28,7 +28,10 @@ export class TinybirdProvider implements Storage {
         headers: {
           Authorization: `Bearer ${this.tbAuth}`,
         },
-        body: events.map((event) => JSON.stringify(event)).join("\n"),
+        body: events.map((event) => JSON.stringify({
+          ...event,
+          data: JSON.stringify(event.data)
+        })).join("\n"),
       }
     )
     if (response.status > 299) {
