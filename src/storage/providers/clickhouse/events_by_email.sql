@@ -1,6 +1,6 @@
 create materialized view events_by_email
 ENGINE = MergeTree
-PARTITION BY(toYYYYMM(toDateTime(time_sec)))
+PARTITION BY murmurHash2_32(email) % 32
 ORDER BY (email, time_sec)
 AS select
   JSONExtractString(`data`, 'receipt_email') as email

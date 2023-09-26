@@ -26,9 +26,9 @@ export async function SetupStorage() {
     case "tinybird":
       strg = new TinybirdProvider()
       break
-    case "postgres":
-      strg = new PostgresProvider()
-      break
+    // case "postgres":
+    //   strg = new PostgresProvider()
+    //   break
 
     default:
       throw new Error(

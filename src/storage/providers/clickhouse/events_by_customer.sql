@@ -1,6 +1,6 @@
 create materialized view events_by_customer
 ENGINE = MergeTree
-PARTITION BY(toYYYYMM(toDateTime(time_sec)))
+PARTITION BY murmurHash2_32(customer) % 32
 ORDER BY (customer, time_sec)
 AS select
   JSONExtractString(`data`, 'customer') as customer
