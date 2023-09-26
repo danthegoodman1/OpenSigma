@@ -22,9 +22,7 @@ export class TinybirdProvider implements Storage {
   async InsertEvents(events: Event[]) {
     const start = new Date().getTime()
     const response = await fetch(
-      `${this.tbURL}/v0/events?name=${encodeURIComponent(
-        new URL(this.tbRawTable).searchParams.get("name") as string
-      )}`,
+      `${this.tbURL}/v0/events?name=${encodeURIComponent(this.tbRawTable)}`,
       {
         method: "POST",
         headers: {
@@ -36,6 +34,9 @@ export class TinybirdProvider implements Storage {
     if (response.status > 299) {
       throw new HighStatusCode(response.status, await response.text())
     }
-    logger.debug("inserted events into tinybird in", new Date().getTime() - start)
+    logger.debug(
+      "inserted events into tinybird in",
+      new Date().getTime() - start
+    )
   }
 }
