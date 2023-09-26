@@ -7,8 +7,8 @@ import { v4 as uuidv4 } from 'uuid'
 import cors from 'cors'
 
 import { logger } from './logger'
-import { ConnectDB, InsertEvents } from './db'
 import { ListObject, stripe } from './stripe'
+import { SetupStorage, strg } from './storage'
 
 const listenPort = process.env.PORT || '8080'
 
@@ -48,7 +48,7 @@ async function main() {
 
   // Connect DB
   try {
-    await ConnectDB()
+    await SetupStorage()
   } catch (error: any) {
     log.error({ m: "failed to connect to db", err: error })
     process.exit(1)
@@ -85,9 +85,10 @@ async function main() {
           signature!,
           process.env.STRIPE_WEBHOOK_SECRET
         )
-        await InsertEvents([{
+        await strg.InsertEvents([{
           data: event,
-          type: event.type
+          type: event.type,
+          timeSec: event.created || Math.floor(new Date().getTime()/1000)
         }])
       } catch (err) {
         logger.warn({

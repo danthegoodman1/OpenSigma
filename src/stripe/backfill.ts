@@ -1,6 +1,6 @@
 import { ListObject } from "."
-import { InsertEvents } from "../db"
 import { logger } from "../logger"
+import { strg } from "../storage"
 import { StripeTypes } from "./types"
 
 export async function backfillObjectType(objectType: StripeTypes, gte?: string) {
@@ -12,16 +12,14 @@ export async function backfillObjectType(objectType: StripeTypes, gte?: string) 
       limit: 100,
       starting_after: startingAfter,
     })
-    await InsertEvents(
+    await strg.InsertEvents(
       res.data.map((obj) => {
         return {
           data: obj,
           type: objectType,
+          timeSec: obj.created || Math.floor(new Date().getTime() / 1000)
         }
-      }),
-      {
-        insertOnConflict: false,
-      }
+      })
     )
     logger.debug(`inserted ${res.data.length} of '${objectType}'`)
     hasMore = res.has_more
