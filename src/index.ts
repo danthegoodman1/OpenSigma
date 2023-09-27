@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv"
 dotenv.config()
 
-import express from "express"
+import express, { Request } from "express"
 import { v4 as uuidv4 } from "uuid"
 import cors from "cors"
 
@@ -10,6 +10,7 @@ import { ListObject, stripe } from "./stripe"
 import { SetupStorage, strg } from "./storage"
 import { backfillObjectType } from "./stripe/backfill"
 import { StripeTypes } from "./stripe/types"
+import Stripe from "stripe"
 
 const listenPort = process.env.PORT || "8080"
 
@@ -40,9 +41,12 @@ async function main() {
   try {
     await SetupStorage()
   } catch (error: any) {
-    logger.error({
-      err: error
-    }, "failed to setup storage")
+    logger.error(
+      {
+        err: error,
+      },
+      "failed to setup storage"
+    )
     process.exit(1)
   }
 
@@ -83,8 +87,9 @@ async function main() {
             {
               data: event.data.object,
               object_type: event.object as StripeTypes,
-              time_sec: event.created || Math.floor(new Date().getTime() / 1000),
-              event_type: event.type
+              time_sec:
+                event.created || Math.floor(new Date().getTime() / 1000),
+              event_type: event.type,
             },
           ])
         } catch (err) {
@@ -97,6 +102,24 @@ async function main() {
           return res.sendStatus(400)
         }
       }
+    }
+  )
+
+  app.post(
+    "/direct/:type",
+    express.json(),
+    async (req: Request<{}, {}, Stripe.Event>, res) => {
+      if (req.headers.authorization !== process.env.KEY) {
+        return res.status(403).send("invalid auth")
+      }
+      await strg.InsertEvents([
+        {
+          data: req.body.data.object,
+          object_type: req.body.object as StripeTypes,
+          time_sec: req.body.created || Math.floor(new Date().getTime() / 1000),
+          event_type: req.body.type,
+        },
+      ])
     }
   )
 
