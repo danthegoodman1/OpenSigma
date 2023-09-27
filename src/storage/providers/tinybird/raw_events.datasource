@@ -8,7 +8,7 @@ SCHEMA >
     `time_sec` Int64 `json:$.time_sec`,
     `id` String `json:$.id`,
     `object_type` String `json:$.object_type`,
-    `data` String `json:$.data`
+    `data` String CODEC(ZSTD(1)) `json:$.data`
 
 ENGINE "MergeTree"
 ENGINE_PARTITION_KEY "object_type, toYYYYMM(toDateTime(time_sec))"
