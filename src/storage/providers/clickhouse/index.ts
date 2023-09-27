@@ -22,6 +22,9 @@ export class ClickHouseProvider implements Storage {
     if (!res.success) {
       throw new Error("failed to ping clickhouse")
     }
+    await this.client.query({
+      query: "select 1 from " + this.chTable
+    })
   }
 
   async InsertEvents(events: Event[]) {
