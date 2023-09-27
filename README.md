@@ -61,3 +61,7 @@ I have no plans to offer managed solutions, I don't want your data.
 ## Limitations
 
 The system is inherently limited to only backfilling for object types that can be listed without an ID. For example [application fee refunds](https://stripe.com/docs/api/fee_refunds) are not backfilled because they require an `:id` in the url path.
+
+## Direct insert endpoint (relay from your API)
+
+If you are already accepting all webhooks, then the `/direct` endpoint lets you send the JSON body from your existing service that already received a stripe webhook. This basically just avoids the signature check.

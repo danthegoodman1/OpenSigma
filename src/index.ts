@@ -106,7 +106,7 @@ async function main() {
   )
 
   app.post(
-    "/direct/:type",
+    "/direct",
     express.json(),
     async (req: Request<{}, {}, Stripe.Event>, res) => {
       if (req.headers.authorization !== process.env.KEY) {
