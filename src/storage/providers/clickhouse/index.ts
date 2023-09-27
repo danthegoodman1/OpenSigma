@@ -37,6 +37,9 @@ export class ClickHouseProvider implements Storage {
         }
       }),
       format: "JSONEachRow",
+      clickhouse_settings: {
+        async_insert: process.env.CH_ASYNC_INSERT === "1" ? 1 : 0
+      }
     })
   }
 }
