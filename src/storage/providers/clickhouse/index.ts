@@ -22,8 +22,6 @@ export class ClickHouseProvider implements Storage {
     if (!res.success) {
       throw new Error("failed to ping clickhouse")
     }
-
-    // TODO: Create tables
   }
 
   async InsertEvents(events: Event[]) {
