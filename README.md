@@ -6,11 +6,9 @@ Designed to be run with Bun.
 
 ## Features
 
-Point webhooks at OpenSigma (and optionally run a backfill job) to start collecting your Stripe data. Then query with Postgres' JSON operators.
-
-### Event history
-
-Stores the history of events, and the lifecycle of each object as they change, incrementing their version number. You can see how a charge, subscription, account, etc. changes over time.
+- Accept webhooks directly from Stripe, or relay thrm through your API
+- Different storage providers for string data (many derivative indexes, materialized views, etc. provided) (prefer ClickHouse or Tinybird)
+- Backfill specific data types from Stripe API
 
 ## Motivation
 
@@ -29,34 +27,6 @@ From 97 lines of data down to 3. Ouch.
 They also have a product, Sigma, to query your Stripe data, but that has a per-transaction cost along with an increasing base cost, minimum $10. You also need to enable this before they collect data, so any objects >30 days old are also lost.
 
 This solution allows you to get most of this functionality for free in a database you control.
-
-## Security
-
-OpenSigma uses Inngest, which has a free tier as well. While Inngest is used for background job processing, no data from your Stripe events is ever persisted besides IDs. Therefore Inngest will never have any info about what your Stripe events contain. Inngest must be explicitly enabled with the env var `ENABLE_INNGEST=true`, along with the required keys.
-
-Any information that does need to be passed to an Inngest function is proxied through the database with an anonymous ID.
-
-The only place *potentially* sensitive data is stored is in the DB. Logging only includes IDs.
-
-## How to host
-
-The service is designed to be backed by Postgres/CRDB (with optional TimescaleDB support), and run with a Docker container. A simple and free solution is to use GCP Cloud Run + Supabase to get free container hosting and a free postgres DB with TimescaleDB support.
-
-You also need to use Inngest if you plan to run backfill. They have a free tier as well. Inngest is only used for backfill jobs, not for normal webhook ingestion. Inngest must be explicitly enabled with the env var `ENABLE_INNGEST=true`, along with the required keys.
-
-With Supabase you can also build some cool DB triggers to alert you when something happens. For example:
-
-1. When X early fraud warnings are created within Y minutes
-2. When a customer reaches $100 in payouts, send them a congratulatory email
-3. When a certain number of payments fail from a given user in Y minutes
-
-
-You can also stick cool metrics in your observability tools like:
-
-1. Running calculation of successful vs. finished checkout sessions
-2. Distribution of payouts among customers
-
-I have no plans to offer managed solutions, I don't want your data.
 
 ## Limitations
 
