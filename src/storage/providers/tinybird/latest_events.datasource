@@ -1,0 +1,16 @@
+VERSION 0
+TOKEN opensigma APPEND
+
+DESCRIPTION >
+    OpenSigma latest events
+
+SCHEMA >
+    `time_sec` Int64 NOT NULL DEFAULT 0
+    , `id` String NOT NULL DEFAULT ''
+    , `object_type` String NOT NULL DEFAULT ''
+    , `data` String NOT NULL DEFAULT ''
+
+ENGINE "ReplacingMergeTree"
+ENGINE_VER time_sec
+ENGINE_PARTITION_KEY "object_type, toYYYYMM(toDateTime(time_sec))"
+ENGINE_SORTING_KEY "object_type, time_sec"

@@ -1,6 +1,6 @@
 DESCRIPTION Latest rows for a given event id
 
-NODE latest_events
+NODE latest_events_mv
 SQL >
     SELECT
       max(timeSec) timeSec
@@ -11,4 +11,4 @@ SQL >
     group by object_type, id
 
 TYPE MATERIALIZED
-DATASOURCE raw_events
+DATASOURCE latest_events

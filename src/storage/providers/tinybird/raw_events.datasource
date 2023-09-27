@@ -1,5 +1,5 @@
 VERSION 0
-TOKEN tracker APPEND
+TOKEN opensigma APPEND
 
 DESCRIPTION >
     OpenSigma raw events
