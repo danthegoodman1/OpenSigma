@@ -123,15 +123,16 @@ async function main() {
     }
   )
 
-  app.post("/list/:objectType", express.json(), async (req, res) => {
-    return res.json(await ListObject(req.params.objectType as any))
+  app.post("/list", express.json(), async (req: Request<{}, {}, {objectType: StripeTypes}>, res) => {
+    return res.json(await ListObject(req.body.objectType))
   })
 
-  app.post("/backfill/:objectType", express.json(), async (req, res) => {
+  app.post("/backfill", express.json(), async (req: Request<{}, {}, {objectType: StripeTypes}>, res) => {
     if (req.headers.authorization !== process.env.KEY) {
       return res.status(403).send("invalid auth")
     }
-    return res.json(await backfillObjectType(req.params.objectType as any))
+    await backfillObjectType(req.body.objectType)
+    return res.send("done")
   })
 
   const server = app.listen(listenPort, () => {

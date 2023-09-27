@@ -8,11 +8,11 @@ export class TinybirdProvider implements Storage {
 
   constructor() {
     this.tbURL = process.env.TB_URL || "https://api.us-east.tinybird.co"
-    if (!process.env.TB_AUTH || !process.env.TB_RAW_TABLE) {
+    if (!process.env.TB_AUTH || !process.env.TB_TABLE) {
       throw new Error("missing tb auth or raw table env vars")
     }
     this.tbAuth = process.env.TB_AUTH
-    this.tbRawTable = process.env.TB_RAW_TABLE
+    this.tbRawTable = process.env.TB_TABLE
   }
 
   async Init() {
@@ -39,8 +39,7 @@ export class TinybirdProvider implements Storage {
       throw new HighStatusCode(response.status, await response.text())
     }
     logger.debug(
-      "inserted events into tinybird in",
-      new Date().getTime() - start
+      `inserted events into tinybird in ${new Date().getTime() - start}ms`
     )
   }
 }

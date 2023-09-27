@@ -1,2 +1,15 @@
 ### List object
-POST http://localhost:8080/list/charges
+POST http://localhost:8080/list
+Content-Type: application/json
+
+{
+  "objectType": "checkout/sessions"
+}
+
+### Backfill object
+POST http://localhost:8080/backfill
+Content-Type: application/json
+
+{
+  "objectType": "checkout/sessions"
+}

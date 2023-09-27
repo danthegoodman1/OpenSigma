@@ -16,13 +16,13 @@ export async function backfillObjectType(objectType: StripeTypes, gte?: string) 
       res.data.map((obj) => {
         return {
           data: obj,
-          object_type: objectType,
+          object_type: obj.object,
           time_sec: obj.created || Math.floor(new Date().getTime() / 1000),
           event_type: "_backfill"
         }
       })
     )
-    logger.debug(`inserted ${res.data.length} of '${objectType}'`)
+    logger.debug(`inserted ${res.data.length} of '${objectType}' last id ${res.data[res.data.length-1].id}`)
     hasMore = res.has_more
     if (hasMore && gte) {
       // Check if we are still gte
@@ -36,6 +36,7 @@ export async function backfillObjectType(objectType: StripeTypes, gte?: string) 
         logger.info(`Hit gte limiter for ${objectType}, breaking`)
       }
     }
+    startingAfter = res.data[res.data.length-1].id
   } while (hasMore)
   logger.debug(`Reached the end for ${objectType}`)
 }

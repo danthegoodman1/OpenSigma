@@ -25,7 +25,7 @@ export interface StripeObjectList {
 
 export async function ListObject(type: StripeTypes, opts?: ListOptions): Promise<StripeObjectList> {
   try {
-    console.log("listing object")
+    logger.debug("listing object")
     const payload = new URLSearchParams({
       "limit": String(opts?.limit || 30),
     })
