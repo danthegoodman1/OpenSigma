@@ -3,23 +3,27 @@ import path from "path"
 import { logger } from "../../../logger/index.js"
 
 import { Event, Storage } from "../../index.js"
-import { Database } from "duckdb"
+import duckdb from "duckdb"
 
 const dbFileName = process.env.DB_FILENAME ?? "duck.db"
 
-export class PostgresProvider implements Storage {
-  db?: Database
+export class DuckDBProvider implements Storage {
+  db: duckdb.Database
 
   constructor() {
-    this.db = new Database(dbFileName)
+    this.db = new duckdb.Database(dbFileName)
   }
 
   async Init() {
     logger.debug(`Using db file "${dbFileName}"`)
-    const schema = await readFile(
-      path.join("src", "storage", "duckdb", "schema.sql"),
-      "utf-8"
-    )
+    const schema = `create table if not exists stripe_events (
+      object_type text not null,
+      id text not null,
+      time_sec int8 not null,
+      data json not null,
+
+      primary key(time_sec, id) -- only to enforce single row, not for performance
+    );`
     logger.debug(`Running schema.sql`)
     schema
       .split(";")

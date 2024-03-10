@@ -1,8 +1,10 @@
 import { logger } from "../logger/index.js"
 import { StripeTypes } from "../stripe/types.js"
 import { ClickHouseProvider } from "./providers/clickhouse/index.js"
+import { DuckDBProvider } from "./providers/duckdb/index.js"
 import { MemoryProvider } from "./providers/memory/index.js"
 import { PostgresProvider } from "./providers/postgres/index.js"
+import { SqliteProvider } from "./providers/sqlite/index.js"
 import { TinybirdProvider } from "./providers/tinybird/index.js"
 
 export interface Event {
@@ -38,6 +40,12 @@ export async function SetupStorage() {
       break
     case "postgres":
       strg = new PostgresProvider()
+      break
+    case "sqlite":
+      strg = new SqliteProvider()
+      break
+    case "duckdb":
+      strg = new DuckDBProvider()
       break
 
     default:

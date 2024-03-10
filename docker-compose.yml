@@ -3,4 +3,4 @@ services:
   opensigma:
     build: .
     environment:
-      - STORAGE=memory
+      - STORAGE=duckdb

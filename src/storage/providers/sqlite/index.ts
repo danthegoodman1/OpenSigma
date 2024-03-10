@@ -7,7 +7,7 @@ import { logger } from "../../../logger/index.js"
 
 import { Event, Storage } from "../../index.js"
 
-export class PostgresProvider implements Storage {
+export class SqliteProvider implements Storage {
   db?: Database
 
   constructor() {}
@@ -23,10 +23,14 @@ export class PostgresProvider implements Storage {
     await this.db.exec("PRAGMA busy_timeout = 5000;")
     await this.db.exec("PRAGMA synchronous = NORMAL;")
     logger.debug(`Using db file "${dbFileName}"`)
-    const schema = await readFile(
-      path.join("src", "storage", "sqlite", "schema.sql"),
-      "utf-8"
-    )
+    const schema = `create table if not exists stripe_events (
+      object_type text not null,
+      id text not null,
+      time_sec int8 not null,
+      data json not null,
+
+      primary key(time_sec, id)
+    );`
     logger.debug(`Running schema.sql`)
     schema
       .split(";")
