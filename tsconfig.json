@@ -13,5 +13,11 @@
   "include": [
       "./**/*.ts",
       "./*.ts"
+  ],
+  "exclude": [
+    "./*.test.ts",
+    "./*_test.ts",
+    "./**/*.test.ts",
+    "./**/*_test.ts",
   ]
 }

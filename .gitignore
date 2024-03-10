@@ -3,3 +3,4 @@ build
 .env
 .tinyb
 *.db*
+dist
