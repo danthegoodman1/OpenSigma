@@ -34,7 +34,14 @@ export class PostgresProvider implements Storage {
         , data
       ) values ${valuesParts.join(", ")}
     `,
-      events.map((e) => [e.object_type, e.data.id, e.time_sec, e.data]).flat(1)
+      events
+        .map((e) => [
+          e.object_type,
+          e.data.id,
+          e.time_sec,
+          JSON.stringify(e.data),
+        ])
+        .flat(1)
     )
   }
 }

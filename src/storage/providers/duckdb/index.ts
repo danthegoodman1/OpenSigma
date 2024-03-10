@@ -54,7 +54,7 @@ export class DuckDBProvider implements Storage {
     for (let i = 0; i < events.length; i += 4) {
       valuesParts.push(`(?, ?, ?, ?)`)
     }
-    await this.db!.run(
+    await this.db!.exec(
       `
       insert into ${process.env.PG_TABLE || "stripe_events"} (
         object_type
@@ -64,7 +64,12 @@ export class DuckDBProvider implements Storage {
       ) values ${valuesParts.join(", ")}
     `,
       ...events
-        .map((e) => [e.object_type, e.data.id, e.time_sec, e.data])
+        .map((e) => [
+          e.object_type,
+          e.data.id,
+          e.time_sec,
+          JSON.stringify(e.data),
+        ])
         .flat(1),
       () => {}
     )
