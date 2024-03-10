@@ -1,5 +1,5 @@
 import { ClickHouseClient, createClient } from "@clickhouse/client"
-import { Event, Storage } from "../.."
+import { Event, Storage } from "../../index.js"
 
 export class ClickHouseProvider implements Storage {
   client: ClickHouseClient
