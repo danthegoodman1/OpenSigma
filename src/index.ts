@@ -5,11 +5,11 @@ import express, { Request } from "express"
 import { v4 as uuidv4 } from "uuid"
 import cors from "cors"
 
-import { logger } from "./logger"
-import { ListObject, stripe } from "./stripe"
-import { SetupStorage, strg } from "./storage"
-import { backfillObjectType } from "./stripe/backfill"
-import { StripeTypes } from "./stripe/types"
+import { logger } from "./logger/index.js"
+import { ListObject, stripe } from "./stripe/index.js"
+import { SetupStorage, strg } from "./storage/index.js"
+import { backfillObjectType } from "./stripe/backfill.js"
+import { StripeTypes } from "./stripe/types.js"
 import Stripe from "stripe"
 
 const listenPort = process.env.PORT || "8080"
@@ -73,7 +73,6 @@ async function main() {
     "/webhook",
     express.raw({ type: "application/json" }),
     async (req, res) => {
-      let event = req.body
       if (stripe && process.env.STRIPE_WEBHOOK_SECRET) {
         // Get the signature sent by Stripe
         const signature = req.headers["stripe-signature"]
@@ -123,17 +122,25 @@ async function main() {
     }
   )
 
-  app.post("/list", express.json(), async (req: Request<{}, {}, {objectType: StripeTypes}>, res) => {
-    return res.json(await ListObject(req.body.objectType))
-  })
-
-  app.post("/backfill", express.json(), async (req: Request<{}, {}, {objectType: StripeTypes}>, res) => {
-    if (req.headers.authorization !== process.env.KEY) {
-      return res.status(403).send("invalid auth")
+  app.post(
+    "/list",
+    express.json(),
+    async (req: Request<{}, {}, { objectType: StripeTypes }>, res) => {
+      return res.json(await ListObject(req.body.objectType))
     }
-    await backfillObjectType(req.body.objectType)
-    return res.send("done")
-  })
+  )
+
+  app.post(
+    "/backfill",
+    express.json(),
+    async (req: Request<{}, {}, { objectType: StripeTypes }>, res) => {
+      if (req.headers.authorization !== process.env.KEY) {
+        return res.status(403).send("invalid auth")
+      }
+      await backfillObjectType(req.body.objectType)
+      return res.send("done")
+    }
+  )
 
   const server = app.listen(listenPort, () => {
     logger.info(`API listening on port ${listenPort}`)

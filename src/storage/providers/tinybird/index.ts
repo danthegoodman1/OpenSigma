@@ -1,5 +1,5 @@
-import { Event, HighStatusCode, Storage } from "../.."
-import { logger } from "../../../logger"
+import { Event, HighStatusCode, Storage } from "../../index.js"
+import { logger } from "../../../logger/index.js"
 
 export class TinybirdProvider implements Storage {
   tbURL: string

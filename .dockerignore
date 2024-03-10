@@ -1,0 +1,6 @@
+.env
+.gitignore
+.tinyb
+Dockerfile
+Taskfile.yaml
+docker-compose.yml

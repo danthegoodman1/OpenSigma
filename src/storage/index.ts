@@ -1,11 +1,15 @@
-import { logger } from "../logger"
-import { StripeTypes } from "../stripe/types"
-import { ClickHouseProvider } from "./providers/clickhouse"
-import { PostgresProvider } from "./providers/postgres"
-import { TinybirdProvider } from "./providers/tinybird"
+import { logger } from "../logger/index.js"
+import { StripeTypes } from "../stripe/types.js"
+import { ClickHouseProvider } from "./providers/clickhouse/index.js"
+import { MemoryProvider } from "./providers/memory/index.js"
+import { PostgresProvider } from "./providers/postgres/index.js"
+import { TinybirdProvider } from "./providers/tinybird/index.js"
 
 export interface Event {
-  data: any
+  data: {
+    // id: string
+    [key: string]: any
+  }
   object_type: StripeTypes
   time_sec: Number
   event_type: string
@@ -20,15 +24,21 @@ export let strg: Storage
 
 export async function SetupStorage() {
   switch (process.env.STORAGE) {
+    case "memory":
+      strg = new MemoryProvider()
+      break
     case "clickhouse":
       strg = new ClickHouseProvider()
       break
     case "tinybird":
       strg = new TinybirdProvider()
       break
-    // case "postgres":
-    //   strg = new PostgresProvider()
-    //   break
+    case "postgres":
+      strg = new PostgresProvider()
+      break
+    case "postgres":
+      strg = new PostgresProvider()
+      break
 
     default:
       throw new Error(

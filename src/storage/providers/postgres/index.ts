@@ -1,7 +1,7 @@
 import { Pool } from 'pg'
 import pg from 'pg'
 
-import { Event, Storage } from "../.."
+import { Event, Storage } from "../../index.js"
 
 export let pool: Pool
 

@@ -1,8 +1,8 @@
 import fetch from "cross-fetch"
 import Stripe from "stripe"
 
-import { logger } from "../logger";
-import { StripeTypes } from "./types";
+import { logger } from "../logger/index.js";
+import { StripeTypes } from "./types.js";
 
 export let stripe: Stripe | undefined
 if (process.env.STRIPE_KEY) {

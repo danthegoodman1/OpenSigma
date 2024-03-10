@@ -1,7 +1,7 @@
-import { ListObject } from "."
-import { logger } from "../logger"
-import { strg } from "../storage"
-import { StripeTypes } from "./types"
+import { ListObject } from "./index.js"
+import { logger } from "../logger/index.js"
+import { strg } from "../storage/index.js"
+import { StripeTypes } from "./types.js"
 
 export async function backfillObjectType(objectType: StripeTypes, gte?: string) {
   logger.debug(`starting backfill for ${objectType}`)
