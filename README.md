@@ -35,3 +35,11 @@ The system is inherently limited to only backfilling for object types that can b
 ## Direct insert endpoint (relay from your API)
 
 If you are already accepting all webhooks, then the `/direct` endpoint lets you send the JSON body from your existing service that already received a stripe webhook. This basically just avoids the signature check.
+
+## Storage
+
+### DuckDB
+
+An optional `DUCKDB_EXTENSIONS` env var exists that allows you to install custom extensions.
+
+By default, the `json` extension is installed. You can set `DUCKDB_EXTENSIONS` to a CSV of additional extensions to have them install on `Init()`.
