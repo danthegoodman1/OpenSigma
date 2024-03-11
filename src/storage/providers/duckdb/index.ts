@@ -22,7 +22,7 @@ export class DuckDBProvider implements Storage {
       time_sec int8 not null,
       data json not null,
 
-      primary key(time_sec, id) -- only to enforce single row, not for performance
+      primary key(time_sec, id) -- only to enforce uniqueness, not for performance
     );`
     logger.debug(`Running schema.sql`)
     schema
