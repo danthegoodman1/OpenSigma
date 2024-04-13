@@ -43,12 +43,12 @@ export class SqliteProvider implements Storage {
 
   async InsertEvents(events: Event[]) {
     const valuesParts = []
-    for (let i = 0; i < events.length; i += 4) {
+    for (let i = 0; i < events.length * 4; i += 4) {
       valuesParts.push(`($${i + 1}, $${i + 2}, $${i + 3}, $${i + 4})`)
     }
     await this.db!.run(
       `
-      insert into ${process.env.PG_TABLE || "stripe_events"} (
+      insert or replace into ${process.env.PG_TABLE || "stripe_events"} (
         object_type
         , id
         , time_sec

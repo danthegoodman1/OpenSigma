@@ -14,6 +14,15 @@ test("sqlite", async () => {
       object_type: "accounts",
       time_sec: new Date().getTime() / 1000,
     },
+    {
+      data: {
+        id: "testied",
+        hey: "ho",
+      },
+      event_type: "test",
+      object_type: "accounts",
+      time_sec: new Date().getTime() / 1000,
+    },
   ])
 
   const res = await str.db?.get("select * from stripe_events")

@@ -137,7 +137,7 @@ async function main() {
       if (req.headers.authorization !== process.env.KEY) {
         return res.status(403).send("invalid auth")
       }
-      await backfillObjectType(req.body.objectType)
+      await backfillObjectType(req.body.objectType, strg)
       return res.send("done")
     }
   )
